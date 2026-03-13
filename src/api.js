@@ -1004,6 +1004,43 @@ export async function getDocs({ section = "overview" } = {}) {
 
 // ─── Media and use cases ──────────────────────────────────────────────────────
 
+// ─── Merch store ─────────────────────────────────────────────────────────────
+
+export async function getMerch() {
+  const res = await fetch("https://merch.frankencoin.com/products.json?limit=250", {
+    headers: { "Accept": "application/json" },
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!res.ok) throw new Error(`Merch store error ${res.status}`);
+  const { products } = await res.json();
+
+  return {
+    storeUrl: "https://merch.frankencoin.com",
+    totalProducts: products.length,
+    products: products.map((p) => ({
+      title: p.title,
+      handle: p.handle,
+      url: `https://merch.frankencoin.com/products/${p.handle}`,
+      description: p.body_html?.replace(/<[^>]+>/g, "").trim() || null,
+      type: p.product_type || null,
+      tags: p.tags || [],
+      images: p.images.map((i) => i.src),
+      options: p.options.map((o) => ({ name: o.name, values: o.values })),
+      variants: p.variants.map((v) => ({
+        title: v.title,
+        price: v.price,
+        compareAtPrice: v.compare_at_price || null,
+        available: v.available,
+        sku: v.sku || null,
+      })),
+      minPrice: p.variants.reduce((min, v) => Math.min(min, parseFloat(v.price)), Infinity).toFixed(2),
+      maxPrice: p.variants.reduce((max, v) => Math.max(max, parseFloat(v.price)), 0).toFixed(2),
+      available: p.variants.some((v) => v.available),
+    })),
+    note: "Live from merch.frankencoin.com — prices in USD.",
+  };
+}
+
 export async function getMediaAndUseCases() {
   const [mediaData, useCaseData, ecosystemData] = await Promise.all([
     githubJson(SITE_REPO, "src/content/shared/media.json"),

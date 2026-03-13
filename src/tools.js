@@ -213,6 +213,16 @@ export const TOOLS = [
     },
   },
   {
+    name: "get_merch",
+    description:
+      "Get all products from the Frankencoin merch store (merch.frankencoin.com) — titles, prices, variants (sizes/colors), availability, images, and direct product URLs. Live data, no caching.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      required: [],
+    },
+  },
+  {
     name: "get_token_addresses",
     description:
       "Get the official contract addresses for all Frankencoin tokens across all supported chains — ZCHF (stablecoin), FPS (governance token), and svZCHF (savings vault). Includes explorer links. Sourced live from the Frankencoin website repository so always up to date.",

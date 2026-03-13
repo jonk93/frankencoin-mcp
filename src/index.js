@@ -102,6 +102,7 @@ function createServer() {
             return ok(await api.getHistorical({ days: Math.min(args.days ?? 90, 365) }));
           case "get_market_context":      return ok(await api.getMarketContext());
           case "get_dune_stats":          return ok(await api.getDuneStats());
+          case "get_merch":               return ok(await api.getMerch());
           case "get_token_addresses":     return ok(await api.getTokenAddresses());
           case "get_links":               return ok(await api.getLinks());
           case "get_docs":                return ok(await api.getDocs({ section: args.section ?? "overview" }));
