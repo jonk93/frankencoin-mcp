@@ -11,13 +11,36 @@ This is the Frankencoin MCP server — a Model Context Protocol server that expo
 
 ---
 
+## Versioning — MANDATORY
+
+**Every PR that changes behaviour must bump `package.json` version. No exceptions.**
+
+`src/index.js` reads the version from `package.json` at startup — it is the single source of truth for the MCP server identity, `/health`, and `/tools` responses.
+
+```bash
+npm version patch   # bug fixes, minor tweaks    e.g. 1.1.0 → 1.1.1
+npm version minor   # new tools, new endpoints   e.g. 1.1.0 → 1.2.0
+npm version major   # breaking changes           e.g. 1.1.0 → 2.0.0
+```
+
+A pre-push git hook (`.githooks/pre-push`) enforces this — it will block the push if your branch has the same version as `main`. The hook is activated via `git config core.hooksPath .githooks` (already set).
+
+**When to bump:**
+- New tool added → `minor`
+- Bug fix / data improvement → `patch`
+- Endpoint removed or response shape changed → `major`
+- README/docs only → no bump needed
+
+---
+
 ## Architecture
 
 ```
 src/
-  index.js   — HTTP server + stdio transport, session management, tool dispatch
+  index.js   — HTTP server + stdio transport, REST /tools layer, session management, tool dispatch
   api.js     — All data fetching: REST (api.frankencoin.com) + GraphQL (ponder.frankencoin.com)
   tools.js   — MCP tool definitions (name, description, inputSchema)
+  cli.js     — frankencoin CLI (human-friendly terminal interface, same api.js backend)
 ```
 
 ### Key design decisions

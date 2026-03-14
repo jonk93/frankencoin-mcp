@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# pre-push hook: enforce that package.json version is bumped vs main
+#
+# Install: git config core.hooksPath .githooks
+# (already set in .git/config by the project setup script)
+
+set -e
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Skip on main itself (direct pushes to main should not self-check)
+if [ "$BRANCH" = "main" ]; then
+  exit 0
+fi
+
+# Get version on main (remote)
+MAIN_VERSION=$(git show origin/main:package.json 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin)['version'])" 2>/dev/null)
+LOCAL_VERSION=$(python3 -c "import json; print(json.load(open('package.json'))['version'])" 2>/dev/null)
+
+if [ -z "$MAIN_VERSION" ] || [ -z "$LOCAL_VERSION" ]; then
+  echo "⚠️  pre-push: could not read versions, skipping check"
+  exit 0
+fi
+
+if [ "$LOCAL_VERSION" = "$MAIN_VERSION" ]; then
+  echo ""
+  echo "❌  Version not bumped!"
+  echo "    package.json is still at $LOCAL_VERSION (same as main)"
+  echo ""
+  echo "    Run one of:"
+  echo "      npm version patch   # bug fixes         (1.1.0 → 1.1.1)"
+  echo "      npm version minor   # new features      (1.1.0 → 1.2.0)"
+  echo "      npm version major   # breaking changes  (1.1.0 → 2.0.0)"
+  echo ""
+  exit 1
+fi
+
+echo "✅  Version: $MAIN_VERSION → $LOCAL_VERSION"
+exit 0
