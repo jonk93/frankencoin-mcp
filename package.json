@@ -1,6 +1,6 @@
 {
   "name": "frankencoin-mcp",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "MCP server for Frankencoin (ZCHF) protocol \u2014 real-time supply, positions, savings, FPS, challenges, analytics",
   "main": "dist/index.js",
   "type": "module",

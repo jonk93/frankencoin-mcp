@@ -21,9 +21,15 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import http from "http";
+import { readFileSync } from "fs";
 import { z } from "zod";
 import { TOOLS } from "./tools.js";
 import * as api from "./api.js";
+
+// Read version from package.json — single source of truth
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8")
+);
 
 // ─── Tool registration ────────────────────────────────────────────────────────
 // Each session gets its own McpServer instance (required by SDK — one server per transport).
@@ -61,7 +67,7 @@ function jsonPropsToZodShape(properties = {}, required = []) {
 }
 
 function createServer() {
-  const server = new McpServer({ name: "frankencoin", version: "1.0.0" });
+  const server = new McpServer({ name: "frankencoin", version: VERSION });
 
   for (const tool of TOOLS) {
     // Convert JSON Schema properties to a Zod raw shape. Passing a plain
@@ -177,7 +183,7 @@ if (!useHttp) {
       res.end(JSON.stringify({
         status: "ok",
         server: "frankencoin-mcp",
-        version: "1.0.0",
+        version: VERSION,
         description: "Frankencoin (ZCHF) protocol data server",
         interfaces: {
           mcp:  "POST /mcp  — MCP protocol (AI agents, Claude Desktop, Cursor)",
