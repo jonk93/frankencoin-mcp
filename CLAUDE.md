@@ -15,9 +15,17 @@ This is the Frankencoin MCP server — a Model Context Protocol server that expo
 
 ```
 src/
-  index.js   — HTTP server + stdio transport, session management, tool dispatch
-  api.js     — All data fetching: REST (api.frankencoin.com) + GraphQL (ponder.frankencoin.com)
-  tools.js   — MCP tool definitions (name, description, inputSchema)
+  index.js          — HTTP server + stdio transport, session management, tool dispatch
+  tools.js          — MCP tool definitions (name, description, inputSchema)
+  api.js            — Barrel re-export of all api/ modules
+  api/
+    helpers.js      — Shared constants, fetch helpers (apiFetch, ponderQuery, cgFetch, ethCall, githubFile), number utils (fromWei, bpsToPercent, ppmToPercent)
+    protocol.js     — ZCHF info, FPS, prices, savings rates/stats, collaterals
+    positions.js    — Positions + challenges (with CoinGecko enrichment)
+    analytics.js    — Analytics, historical data, equity trades, minters, Dune stats
+    market.js       — Market context, CHF stablecoin comparison (ZCHF/VCHF/CHFAU)
+    content.js      — Docs, links, token addresses, media, merch
+    summary.js      — High-level protocol summary (composes protocol + savings + challenges)
 ```
 
 ### Key design decisions
@@ -101,8 +109,9 @@ Key entities and their primary keys:
 ## Adding a new tool
 
 1. Add the tool definition to `src/tools.js` (name, description, inputSchema)
-2. Add the API function to `src/api.js`
-3. Add the case to the switch in `createServer()` in `src/index.js`
+2. Add the API function to the appropriate `src/api/*.js` module (or create a new one)
+3. Re-export it from `src/api.js`
+4. Add the case to the switch in `createServer()` in `src/index.js`
 
 That's it. No registration elsewhere needed.
 
